@@ -94,6 +94,8 @@
       <img id="logoAPreview" alt="" />
       <input id="logoAFile" type="file" accept="image/*" />
     </div>
+    <label>Left label</label>
+    <input id="labelA" type="text" value="GBN" />
     <p class="hint">Saved in your browser — upload once.</p>
 
     <h2>Right logo (Opponent)</h2>
@@ -101,6 +103,8 @@
       <img id="logoBPreview" alt="" />
       <input id="logoBFile" type="file" accept="image/*" />
     </div>
+    <label>Right label</label>
+    <input id="labelB" type="text" value="Guest" />
 
     <details>
       <summary>Colors &amp; layout</summary>
@@ -171,6 +175,15 @@
           <image id="logoA" x="80" y="280" width="220" height="220" preserveAspectRatio="xMidYMid meet" />
           <image id="logoB" x="780" y="280" width="220" height="220" preserveAspectRatio="xMidYMid meet" />
 
+          <text id="labelAText" x="190" y="550" text-anchor="middle"
+                font-family="Anton, Impact, sans-serif" font-size="48"
+                fill="#ffffff" stroke="#1a1305" stroke-width="5"
+                paint-order="stroke" stroke-linejoin="round">GBN</text>
+          <text id="labelBText" x="890" y="550" text-anchor="middle"
+                font-family="Anton, Impact, sans-serif" font-size="48"
+                fill="#ffffff" stroke="#1a1305" stroke-width="5"
+                paint-order="stroke" stroke-linejoin="round">Guest</text>
+
           <text id="scoreText" x="540" y="430" text-anchor="middle"
                 font-family="Oswald, Impact, sans-serif" font-weight="700" font-size="170"
                 fill="#d4af37" stroke="#5a4a1a" stroke-width="6"
@@ -194,6 +207,7 @@ const els = {
   bgFit: $('bgFit'), bgY: $('bgY'),
   logoAFile: $('logoAFile'), logoAPreview: $('logoAPreview'),
   logoBFile: $('logoBFile'), logoBPreview: $('logoBPreview'),
+  labelA: $('labelA'), labelB: $('labelB'),
   titleColor: $('titleColor'), titleOutline: $('titleOutline'),
   scoreColor: $('scoreColor'), scoreOutline: $('scoreOutline'),
   subtitleColor: $('subtitleColor'),
@@ -211,6 +225,10 @@ const subtitleText = $('subtitleText');
 const scoreText = $('scoreText');
 const logoA = $('logoA');
 const logoB = $('logoB');
+const labelAText = $('labelAText');
+const labelBText = $('labelBText');
+const LABEL_SIZE = 48;
+const LABEL_GAP = 50;
 
 const W = 1080, H = 1920;
 const state = {
@@ -238,6 +256,8 @@ function render() {
   titleText.textContent = els.title.value;
   subtitleText.textContent = els.subtitle.value;
   scoreText.textContent = `${els.scoreA.value} - ${els.scoreB.value}`;
+  labelAText.textContent = els.labelA.value;
+  labelBText.textContent = els.labelB.value;
 
   // Colors / sizes
   titleText.setAttribute('fill', els.titleColor.value);
@@ -271,9 +291,12 @@ function render() {
   const titleSize = +els.titleSize.value;
   const logoSize = +els.logoSize.value;
   const scoreSize = +els.scoreSize.value;
-  // Block spans from title baseline to subtitle baseline+~34. Compute max blockTop
-  // so the subtitle stays inside the 1920px canvas with a small bottom margin.
-  const blockHeight = 60 + logoSize / 2 + scoreSize / 3 + 60 + 34;
+  // Block spans from title baseline to whichever element ends lowest
+  // (subtitle or logo labels). Compute max blockTop so the bottom of the
+  // block stays inside the 1920px canvas with a small bottom margin.
+  const subtitleBottomFromTop = 60 + logoSize / 2 + scoreSize / 3 + 60 + 34;
+  const labelBottomFromTop = 60 + logoSize + LABEL_GAP + LABEL_SIZE * 0.25;
+  const blockHeight = Math.max(subtitleBottomFromTop, labelBottomFromTop);
   const maxBlockTop = H - 40 - blockHeight;
   const minBlockTop = 120;
   const blockTop = minBlockTop + (els.blockY.value | 0) / 100 * (maxBlockTop - minBlockTop);
@@ -289,6 +312,12 @@ function render() {
   logoB.setAttribute('y', logoY);
   logoB.setAttribute('width', logoSize);
   logoB.setAttribute('height', logoSize);
+
+  const labelY = logoY + logoSize + LABEL_GAP;
+  labelAText.setAttribute('x', 70 + logoSize / 2);
+  labelAText.setAttribute('y', labelY);
+  labelBText.setAttribute('x', W - 70 - logoSize / 2);
+  labelBText.setAttribute('y', labelY);
 
   const scoreY = logoY + logoSize / 2 + scoreSize / 3;
   scoreText.setAttribute('y', scoreY);
@@ -344,9 +373,14 @@ function download(filename, blob) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+function exportName(ext) {
+  const slug = s => (s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'team';
+  return `score-${slug(els.labelA.value)}-${slug(els.labelB.value)}.${ext}`;
+}
+
 els.downloadSvg.addEventListener('click', () => {
   const blob = new Blob([svgString()], { type: 'image/svg+xml;charset=utf-8' });
-  download('tennis-score.svg', blob);
+  download(exportName('svg'), blob);
 });
 
 els.download.addEventListener('click', async () => {
@@ -364,7 +398,7 @@ els.download.addEventListener('click', async () => {
     const ctx = canvas.getContext('2d');
     ctx.drawImage(img, 0, 0, W, H);
     URL.revokeObjectURL(url);
-    canvas.toBlob(b => download('tennis-score.png', b), 'image/png');
+    canvas.toBlob(b => download(exportName('png'), b), 'image/png');
   };
   img.onerror = () => alert('Export failed. Try Download SVG instead.');
   img.src = url;
