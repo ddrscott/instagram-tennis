@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>GBN Tennis Score Card</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@500;700&family=Inter:wght@600;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0e0f12;
+    --panel: #16181d;
+    --line: #2a2d35;
+    --text: #e7e9ee;
+    --muted: #8a92a0;
+    --accent: #d4af37;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font: 14px/1.4 Inter, system-ui, sans-serif; }
+  .app { display: grid; grid-template-columns: 360px 1fr; height: 100%; }
+  .panel { background: var(--panel); border-right: 1px solid var(--line); padding: 18px; overflow-y: auto; }
+  .stage { display: flex; align-items: center; justify-content: center; padding: 18px; overflow: auto; background:
+    repeating-conic-gradient(#1a1c22 0% 25%, #15171c 0% 50%) 0 0 / 24px 24px; }
+  .stage-inner { aspect-ratio: 9 / 16; height: min(95vh, calc((100vw - 360px - 36px) * 16 / 9)); max-width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,.5); background: #000; }
+  svg.card { display: block; width: 100%; height: 100%; }
+
+  h1 { font: 700 16px/1 Inter; margin: 0 0 14px; letter-spacing: .04em; text-transform: uppercase; color: var(--text); }
+  h2 { font: 700 11px/1 Inter; margin: 18px 0 8px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  label { display: block; margin: 8px 0 4px; font-size: 12px; color: var(--muted); }
+  input[type="text"], input[type="number"], select {
+    width: 100%; background: #0c0d11; color: var(--text); border: 1px solid var(--line); border-radius: 6px;
+    padding: 8px 10px; font: 13px Inter, system-ui, sans-serif;
+  }
+  input[type="color"] { width: 100%; height: 34px; background: #0c0d11; border: 1px solid var(--line); border-radius: 6px; padding: 2px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  button {
+    width: 100%; padding: 10px 12px; border-radius: 6px; border: 1px solid var(--line);
+    background: var(--accent); color: #1a1305; font: 700 13px Inter, system-ui, sans-serif; cursor: pointer;
+    letter-spacing: .04em; text-transform: uppercase;
+  }
+  button.secondary { background: #0c0d11; color: var(--text); }
+  button + button { margin-top: 8px; }
+  .file {
+    display: flex; align-items: center; gap: 8px; padding: 6px; border: 1px dashed var(--line); border-radius: 6px;
+    background: #0c0d11;
+  }
+  .file img { width: 36px; height: 36px; object-fit: contain; background: #1a1d24; border-radius: 4px; }
+  .file input[type="file"] { flex: 1; color: var(--muted); font-size: 12px; }
+  .hint { color: var(--muted); font-size: 11px; margin-top: 4px; }
+  details { margin-top: 8px; }
+  summary { cursor: pointer; color: var(--muted); font-size: 12px; margin: 4px 0; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="panel">
+    <h1>Tennis Score Card</h1>
+
+    <h2>Headline</h2>
+    <label>Title text</label>
+    <input id="title" type="text" value="GBN SPARTANS VICTORY!" />
+    <label>Subtitle</label>
+    <input id="subtitle" type="text" value="FINAL SCORE" />
+
+    <h2>Score</h2>
+    <div class="row">
+      <div>
+        <label>GBN</label>
+        <input id="scoreA" type="number" value="5" min="0" />
+      </div>
+      <div>
+        <label>Opponent</label>
+        <input id="scoreB" type="number" value="4" min="0" />
+      </div>
+    </div>
+
+    <h2>Background</h2>
+    <div class="file">
+      <img id="bgPreview" alt="" />
+      <input id="bgFile" type="file" accept="image/*" />
+    </div>
+    <label>Background fit</label>
+    <select id="bgFit">
+      <option value="cover" selected>Cover (fill, may crop)</option>
+      <option value="contain">Contain (letterbox)</option>
+    </select>
+    <label>Vertical focus</label>
+    <input id="bgY" type="range" min="0" max="100" value="50" />
+
+    <h2>Left logo (GBN)</h2>
+    <div class="file">
+      <img id="logoAPreview" alt="" />
+      <input id="logoAFile" type="file" accept="image/*" />
+    </div>
+    <p class="hint">Saved in your browser — upload once.</p>
+
+    <h2>Right logo (Opponent)</h2>
+    <div class="file">
+      <img id="logoBPreview" alt="" />
+      <input id="logoBFile" type="file" accept="image/*" />
+    </div>
+
+    <details>
+      <summary>Colors &amp; layout</summary>
+      <label>Title color</label>
+      <input id="titleColor" type="color" value="#ffffff" />
+      <label>Title outline</label>
+      <input id="titleOutline" type="color" value="#1a1305" />
+      <label>Score color</label>
+      <input id="scoreColor" type="color" value="#d4af37" />
+      <label>Score outline</label>
+      <input id="scoreOutline" type="color" value="#5a4a1a" />
+      <label>Subtitle color</label>
+      <input id="subtitleColor" type="color" value="#ffffff" />
+      <div class="row">
+        <div>
+          <label>Title size</label>
+          <input id="titleSize" type="number" value="92" />
+        </div>
+        <div>
+          <label>Score size</label>
+          <input id="scoreSize" type="number" value="170" />
+        </div>
+      </div>
+      <label>Logo size</label>
+      <input id="logoSize" type="range" min="120" max="320" value="220" />
+      <label>Block vertical position</label>
+      <input id="blockY" type="range" min="0" max="100" value="14" />
+      <label>Background dim (top)</label>
+      <input id="dim" type="range" min="0" max="100" value="0" />
+      <label>Scoreboard shadow</label>
+      <input id="shadow" type="range" min="0" max="100" value="30" />
+    </details>
+
+    <h2>Export</h2>
+    <button id="download">Download PNG</button>
+    <button class="secondary" id="downloadSvg">Download SVG</button>
+    <p class="hint">PNG export uses 1080×1920 (Instagram Story / Reel).</p>
+  </div>
+
+  <div class="stage">
+    <div class="stage-inner">
+      <svg class="card" id="card" viewBox="0 0 1080 1920" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <clipPath id="clip">
+            <rect x="0" y="0" width="1080" height="1920" />
+          </clipPath>
+          <linearGradient id="dimGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#000" stop-opacity="0.55" />
+            <stop offset="55%" stop-color="#000" stop-opacity="0" />
+          </linearGradient>
+          <filter id="scoreShadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow id="scoreShadowFx" dx="0" dy="0" stdDeviation="0" flood-color="#000000" flood-opacity="0" />
+          </filter>
+        </defs>
+
+        <g clip-path="url(#clip)">
+          <rect width="1080" height="1920" fill="#111" />
+          <image id="bgImage" x="0" y="0" width="1080" height="1920" preserveAspectRatio="xMidYMid slice" />
+          <rect id="dimRect" x="0" y="0" width="1080" height="1920" fill="url(#dimGrad)" opacity="0" />
+        </g>
+
+        <g filter="url(#scoreShadow)">
+          <text id="titleText" x="540" y="200" text-anchor="middle"
+                font-family="Anton, Impact, sans-serif" font-size="92"
+                fill="#ffffff" stroke="#1a1305" stroke-width="8"
+                paint-order="stroke" stroke-linejoin="round">GBN SPARTANS VICTORY!</text>
+
+          <image id="logoA" x="80" y="280" width="220" height="220" preserveAspectRatio="xMidYMid meet" />
+          <image id="logoB" x="780" y="280" width="220" height="220" preserveAspectRatio="xMidYMid meet" />
+
+          <text id="scoreText" x="540" y="430" text-anchor="middle"
+                font-family="Oswald, Impact, sans-serif" font-weight="700" font-size="170"
+                fill="#d4af37" stroke="#5a4a1a" stroke-width="6"
+                paint-order="stroke" stroke-linejoin="round">5 - 4</text>
+
+          <text id="subtitleText" x="540" y="510" text-anchor="middle"
+                font-family="Inter, sans-serif" font-weight="800" font-size="34"
+                letter-spacing="6" fill="#ffffff">FINAL SCORE</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const els = {
+  title: $('title'), subtitle: $('subtitle'),
+  scoreA: $('scoreA'), scoreB: $('scoreB'),
+  bgFile: $('bgFile'), bgPreview: $('bgPreview'),
+  bgFit: $('bgFit'), bgY: $('bgY'),
+  logoAFile: $('logoAFile'), logoAPreview: $('logoAPreview'),
+  logoBFile: $('logoBFile'), logoBPreview: $('logoBPreview'),
+  titleColor: $('titleColor'), titleOutline: $('titleOutline'),
+  scoreColor: $('scoreColor'), scoreOutline: $('scoreOutline'),
+  subtitleColor: $('subtitleColor'),
+  titleSize: $('titleSize'), scoreSize: $('scoreSize'),
+  logoSize: $('logoSize'), blockY: $('blockY'), dim: $('dim'),
+  shadow: $('shadow'),
+  download: $('download'), downloadSvg: $('downloadSvg'),
+};
+
+const svg = $('card');
+const bgImage = $('bgImage');
+const dimRect = $('dimRect');
+const titleText = $('titleText');
+const subtitleText = $('subtitleText');
+const scoreText = $('scoreText');
+const logoA = $('logoA');
+const logoB = $('logoB');
+
+const W = 1080, H = 1920;
+const state = {
+  bg: null,
+  logoA: localStorage.getItem('logoA') || null,
+  logoB: localStorage.getItem('logoB') || null,
+};
+
+function readFile(file) {
+  return new Promise((resolve, reject) => {
+    const fr = new FileReader();
+    fr.onload = () => resolve(fr.result);
+    fr.onerror = reject;
+    fr.readAsDataURL(file);
+  });
+}
+
+function setHref(el, href) {
+  if (href) el.setAttributeNS('http://www.w3.org/1999/xlink', 'href', href);
+  el.setAttribute('href', href || '');
+}
+
+function render() {
+  // Text
+  titleText.textContent = els.title.value;
+  subtitleText.textContent = els.subtitle.value;
+  scoreText.textContent = `${els.scoreA.value} - ${els.scoreB.value}`;
+
+  // Colors / sizes
+  titleText.setAttribute('fill', els.titleColor.value);
+  titleText.setAttribute('stroke', els.titleOutline.value);
+  titleText.setAttribute('font-size', els.titleSize.value);
+  scoreText.setAttribute('fill', els.scoreColor.value);
+  scoreText.setAttribute('stroke', els.scoreOutline.value);
+  scoreText.setAttribute('font-size', els.scoreSize.value);
+  subtitleText.setAttribute('fill', els.subtitleColor.value);
+
+  // Background
+  setHref(bgImage, state.bg);
+  const fit = els.bgFit.value === 'cover' ? 'xMidYMid slice' : 'xMidYMid meet';
+  const yPct = (els.bgY.value | 0);
+  const xy = `xMid${yPct < 33 ? 'YMin' : yPct > 66 ? 'YMax' : 'YMid'} ${els.bgFit.value === 'cover' ? 'slice' : 'meet'}`;
+  bgImage.setAttribute('preserveAspectRatio', xy);
+  dimRect.setAttribute('opacity', (els.dim.value / 100).toFixed(2));
+
+  // Scoreboard drop shadow (single slider drives blur, offset, and opacity)
+  const s = (+els.shadow.value) / 100;
+  const fx = $('scoreShadowFx');
+  fx.setAttribute('stdDeviation', s * 15);
+  fx.setAttribute('dy', s * 12);
+  fx.setAttribute('flood-opacity', s * 0.7);
+
+  // Logos
+  setHref(logoA, state.logoA);
+  setHref(logoB, state.logoB);
+
+  // Layout: position the score block
+  const titleSize = +els.titleSize.value;
+  const logoSize = +els.logoSize.value;
+  const scoreSize = +els.scoreSize.value;
+  // Block spans from title baseline to subtitle baseline+~34. Compute max blockTop
+  // so the subtitle stays inside the 1920px canvas with a small bottom margin.
+  const blockHeight = 60 + logoSize / 2 + scoreSize / 3 + 60 + 34;
+  const maxBlockTop = H - 40 - blockHeight;
+  const minBlockTop = 120;
+  const blockTop = minBlockTop + (els.blockY.value | 0) / 100 * (maxBlockTop - minBlockTop);
+
+  titleText.setAttribute('y', blockTop);
+
+  const logoY = blockTop + 60;
+  logoA.setAttribute('x', 70);
+  logoA.setAttribute('y', logoY);
+  logoA.setAttribute('width', logoSize);
+  logoA.setAttribute('height', logoSize);
+  logoB.setAttribute('x', W - 70 - logoSize);
+  logoB.setAttribute('y', logoY);
+  logoB.setAttribute('width', logoSize);
+  logoB.setAttribute('height', logoSize);
+
+  const scoreY = logoY + logoSize / 2 + scoreSize / 3;
+  scoreText.setAttribute('y', scoreY);
+  subtitleText.setAttribute('y', scoreY + 60);
+}
+
+function bindFile(inputEl, previewEl, key) {
+  inputEl.addEventListener('change', async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const data = await readFile(file);
+    state[key] = data;
+    previewEl.src = data;
+    if (key === 'logoA' || key === 'logoB') {
+      try { localStorage.setItem(key, data); } catch {}
+    }
+    render();
+  });
+  if (state[key]) previewEl.src = state[key];
+}
+
+bindFile(els.bgFile, els.bgPreview, 'bg');
+bindFile(els.logoAFile, els.logoAPreview, 'logoA');
+bindFile(els.logoBFile, els.logoBPreview, 'logoB');
+
+// Restore + persist every <input>/<select> control in `els` (skips file inputs and buttons).
+// To add a new tweakable setting: just add it to `els` — it's automatically wired up.
+for (const [key, el] of Object.entries(els)) {
+  if (!el || (el.tagName !== 'INPUT' && el.tagName !== 'SELECT') || el.type === 'file') continue;
+  const saved = localStorage.getItem('cfg:' + key);
+  if (saved !== null) el.value = saved;
+  el.addEventListener('input', () => {
+    localStorage.setItem('cfg:' + key, el.value);
+    render();
+  });
+}
+
+render();
+
+// --- Export ---
+function svgString() {
+  // Inline xlink:href as href (already done via setHref) and serialize
+  const clone = svg.cloneNode(true);
+  clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  clone.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+  return new XMLSerializer().serializeToString(clone);
+}
+
+function download(filename, blob) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+els.downloadSvg.addEventListener('click', () => {
+  const blob = new Blob([svgString()], { type: 'image/svg+xml;charset=utf-8' });
+  download('tennis-score.svg', blob);
+});
+
+els.download.addEventListener('click', async () => {
+  // Wait for fonts so canvas rasterizes them correctly
+  if (document.fonts && document.fonts.ready) {
+    try { await document.fonts.ready; } catch {}
+  }
+  const svgStr = svgString();
+  const svgBlob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(svgBlob);
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, W, H);
+    URL.revokeObjectURL(url);
+    canvas.toBlob(b => download('tennis-score.png', b), 'image/png');
+  };
+  img.onerror = () => alert('Export failed. Try Download SVG instead.');
+  img.src = url;
+});
+</script>
+</body>
+</html>
